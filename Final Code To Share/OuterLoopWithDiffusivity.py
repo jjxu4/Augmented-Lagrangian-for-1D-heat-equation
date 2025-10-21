@@ -155,7 +155,7 @@ try:
         ax2.set_ylabel("t")
         ax2.set_zlabel("u")
 
-        plt.suptitle(f"Iteration {iteration} (alpha = {alpha})")
+        plt.suptitle(f"Iteration {iteration}")
         plt.tight_layout()
         plt.show(block=False)
         plt.pause(0.5)
@@ -190,6 +190,6 @@ except KeyboardInterrupt:
     ax2.set_ylabel("t")
     ax2.set_zlabel("y")
 
-    plt.suptitle(f"Final comparison (alpha = {alpha})")
+    plt.suptitle("Final comparison")
     plt.tight_layout()
     plt.show()

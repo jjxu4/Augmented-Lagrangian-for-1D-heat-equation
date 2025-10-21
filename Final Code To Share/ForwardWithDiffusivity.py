@@ -95,6 +95,6 @@ ax2.set_xlabel("x")
 ax2.set_ylabel("t")
 ax2.set_zlabel("u")
 
-plt.suptitle(f"Heat Equation Solution (alpha = {alpha})")
+plt.suptitle("Heat Equation Solution")
 plt.tight_layout()
 plt.show()
