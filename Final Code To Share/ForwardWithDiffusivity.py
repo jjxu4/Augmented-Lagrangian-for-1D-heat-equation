@@ -15,7 +15,7 @@ dt = T / (nt - 1)
 X, Tm = np.meshgrid(x, t, indexing="ij")
 
 # diffusivity parameter 
-alpha = 0.01   
+alpha = 0.1
 
 # initial condition
 y0 = np.zeros(nx)

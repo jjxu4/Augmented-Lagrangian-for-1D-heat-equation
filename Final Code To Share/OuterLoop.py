@@ -18,8 +18,8 @@ X, Tm = np.meshgrid(x, t, indexing="ij")
 y0 = np.zeros(nx)                 # initial guess
 print("Setting desired temperature to y_desired.npy")
 y_d = np.load("y_desired.npy")
-y_C = 10 * np.ones((nx, nt))      # state upper bound
-beta = 1e-2                       # beta thing
+y_C = 2 * np.ones((nx, nt))      # state upper bound
+beta = 0                          # beta thing
 
 # penalty and guess initial multiplier (mu)
 mu = np.ones((nx, nt))
@@ -86,7 +86,7 @@ def update_mu(mu, y, y_C, rho):
 # Step 2c: Inner Loop (Minimization of L_A)
 # ============================================
 
-def minimize_L_A(mu, rho, y_d, y_C, beta, max_iter=5000, alpha=3, eps=1e-1, u_hotguess=np.zeros((nx,nt))):
+def minimize_L_A(mu, rho, y_d, y_C, beta, max_iter=50, alpha=0.1, eps=0.001, u_hotguess=np.zeros((nx,nt))):
     """Gradient descent to minimize L_A."""
     u = u_hotguess
     y = forward_solve(u, y0, Dxx, dt)
@@ -136,7 +136,8 @@ try:
         # Print violation with state constraint
         violation = np.maximum(0, y_new - y_C)
         L2_viol = np.sum(violation)
-        print(f"Violation with state constraint: ||viol||_L2 = {L2_viol}")
+        max_viol = np.max(violation)
+        print(f"||viol||_L2 = {L2_viol}, ||viol||_max = {max_viol}")
         
         print("Updating multipliers")
         mu = update_mu(mu, y_new, y_C, rho)
@@ -161,7 +162,7 @@ try:
         ax2.set_ylabel("t")
         ax2.set_zlabel("u")
         
-        # Plot where control is violated
+        # # Plot where control is violated
         # mask = np.abs(y_new - y_C) < 0.1
         # ax1.scatter(
         #     X[mask], Tm[mask], y_new[mask],
@@ -186,8 +187,8 @@ except KeyboardInterrupt:
     # --- Left: Control (u) ---
     ax1 = fig_final.add_subplot(121, projection='3d')
     u_desired = np.load("u_desired.npy")
-    ax1.plot_wireframe(X, Tm, u_new, color='r', alpha=0.3)
     ax1.plot_surface(X, Tm, u_desired, cmap='viridis', alpha=0.8)
+    ax1.plot_wireframe(X, Tm, u_new, color='r', alpha=0.6)
     ax1.set_title("True source (surface) vs Recovered source (wireframe)")
     ax1.set_xlabel("x")
     ax1.set_ylabel("t")
@@ -196,8 +197,8 @@ except KeyboardInterrupt:
     # --- Right: Solution (y) ---
     ax2 = fig_final.add_subplot(122, projection='3d')
     y_desired = np.load("y_desired.npy")
-    ax2.plot_wireframe(X, Tm, y_new, color='r', alpha=0.3)
     ax2.plot_surface(X, Tm, y_desired, cmap='viridis', alpha=0.8)
+    ax2.plot_wireframe(X, Tm, y_new, color='r', alpha=0.6)
     ax2.set_title("True solution (surface) vs Recovered solution (wireframe)")
     ax2.set_xlabel("x")
     ax2.set_ylabel("t")
