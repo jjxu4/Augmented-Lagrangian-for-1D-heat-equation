@@ -18,12 +18,30 @@ X, Tm = np.meshgrid(x, t, indexing="ij")
 y0 = np.zeros(nx)                 # initial guess
 print("Setting desired temperature to y_desired.npy")
 y_d = np.load("y_desired.npy")
-y_C = 2 * np.ones((nx, nt))      # state upper bound
+
+# ============================================
+# Define Constraint Here
+# ============================================
+# Centered in the middle of the domain (x=0.5, t=0.5)
+x0, t0 = 0.5, 0.5
+
+# Widths (broad Gaussian)
+sigma_x = 0.2
+sigma_t = 0.3
+
+# Peak height (somewhat below the true unconstrained maximum)
+amplitude = 1.2
+
+# Construct space–time Gaussian
+y_C = amplitude * np.exp(-((X - x0)**2) / (2 * sigma_x**2)) \
+                 * np.exp(-((Tm - t0)**2) / (2 * sigma_t**2))
+# ============================================
+
 beta = 0                          # beta thing
 
 # penalty and guess initial multiplier (mu)
 mu = np.ones((nx, nt))
-rho = 10.0
+rho = 100.0
 
 # ============================================
 # Step 1a: Build spatial operator (Dirichlet Laplacian)
@@ -137,7 +155,7 @@ try:
         violation = np.maximum(0, y_new - y_C)
         L2_viol = np.sum(violation)
         max_viol = np.max(violation)
-        print(f"||viol||_L2 = {L2_viol}, ||viol||_max = {max_viol}")
+        print(f"||viol||_L2 = {L2_viol:.6e}, ||viol||_max = {max_viol:.6e}")
         
         print("Updating multipliers")
         mu = update_mu(mu, y_new, y_C, rho)

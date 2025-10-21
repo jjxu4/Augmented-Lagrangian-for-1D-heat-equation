@@ -140,7 +140,7 @@ try:
         violation = np.maximum(0, y_new - y_C)
         L2_viol = np.sum(violation)
         max_viol = np.max(violation)
-        print(f"||viol||_L2 = {L2_viol}, ||viol||_max = {max_viol}")
+        print(f"||viol||_L2 = {L2_viol:.6e}, ||viol||_max = {max_viol:.6e}")
         
         print("Updating multipliers")
         mu = update_mu(mu, y_new, y_C, rho)
