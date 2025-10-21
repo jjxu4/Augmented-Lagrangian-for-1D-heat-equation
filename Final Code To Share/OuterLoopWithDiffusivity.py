@@ -22,7 +22,7 @@ y0 = np.zeros(nx)                 # initial guess
 print("Setting desired temperature to y_desired.npy")
 y_d = np.load("y_desired_w_diff.npy")
 y_C = 10 * np.ones((nx, nt))      # state upper bound
-beta = 1e-2                       # beta thing
+beta = 0                     # beta thing
 
 # penalty and guess initial multiplier (mu)
 mu = np.ones((nx, nt))
@@ -129,7 +129,7 @@ ax2 = fig.add_subplot(122, projection='3d')
 try:
     iteration = 0
     while True:
-        print(f"\n=== Outer loop iteration {iteration} (alpha = {alpha}) ===")
+        print(f"\n=== Outer loop iteration {iteration} ===")
         print("Minimizing Augmented Lagrangian")
         y_new, u_new = minimize_L_A(mu, rho, y_d, y_C, beta)
         print("Updating multipliers")
@@ -182,7 +182,7 @@ except KeyboardInterrupt:
 
     # --- Right: Solution (y) ---
     ax2 = fig_final.add_subplot(122, projection='3d')
-    y_desired = np.load("y_desired.npy")
+    y_desired = np.load("y_desired_w_diffusivity.npy")
     ax2.plot_surface(X, Tm, y_desired, cmap='viridis', alpha=0.8)
     ax2.plot_wireframe(X, Tm, y_new, color='r', alpha=0.6)
     ax2.set_title("True solution (surface) vs Recovered solution (wireframe)")
