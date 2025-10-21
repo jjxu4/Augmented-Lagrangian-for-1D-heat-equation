@@ -89,8 +89,10 @@ def update_mu(mu, y, y_C, rho):
 # Step 2c: Inner Loop (Minimization of L_A)
 # ============================================
 
-def minimize_L_A(mu, rho, y_d, y_C, beta, max_iter=5000, alpha_gd=1e-1, eps=1e-3):
-    u = np.zeros((nx, nt))
+def minimize_L_A(mu, rho, y_d, y_C, beta, max_iter=50, alpha_gd=0.5, eps=1e-3, 
+                 u_hotguess=np.zeros((nx,nt))):
+    """Gradient descent to minimize L_A."""
+    u = u_hotguess
     y = forward_solve(u, y0, Dxx, dt)
     J_prev = augmented_lagrangian(y, u, mu, rho, y_d, y_C, beta)
     passed = False
@@ -128,10 +130,17 @@ ax2 = fig.add_subplot(122, projection='3d')
 
 try:
     iteration = 0
+    u_new=np.zeros((nx,nt))
     while True:
         print(f"\n=== Outer loop iteration {iteration} ===")
         print("Minimizing Augmented Lagrangian")
-        y_new, u_new = minimize_L_A(mu, rho, y_d, y_C, beta)
+        y_new, u_new = minimize_L_A(mu, rho, y_d, y_C, beta, u_hotguess=u_new)
+        
+        # Print violation with state constraint
+        violation = np.maximum(0, y_new - y_C)
+        L2_viol = np.sum(violation)
+        print(f"Violation with state constraint: ||viol||_L2 = {L2_viol}")
+        
         print("Updating multipliers")
         mu = update_mu(mu, y_new, y_C, rho)
 
@@ -141,8 +150,8 @@ try:
         ax2 = fig.add_subplot(122, projection='3d')
 
         # State plot
-        ax1.plot_surface(X, Tm, y_new, cmap='viridis', edgecolor='none', alpha=0.9)
         ax1.plot_wireframe(X, Tm, y_C, color='skyblue', alpha=0.5)
+        ax1.plot_surface(X, Tm, y_new, cmap='viridis', edgecolor='none', alpha=0.9)
         ax1.set_title(f"Iter {iteration}: State y(x,t)")
         ax1.set_xlabel("x")
         ax1.set_ylabel("t")
@@ -154,6 +163,13 @@ try:
         ax2.set_xlabel("x")
         ax2.set_ylabel("t")
         ax2.set_zlabel("u")
+        
+        # Plot where control is violated
+        # mask = np.abs(y_new - y_C) < 0.1
+        # ax1.scatter(
+        #     X[mask], Tm[mask], y_new[mask],
+        #     color='red', s=5, alpha=0.8, label='Constraint active region'
+        # )
 
         plt.suptitle(f"Iteration {iteration}")
         plt.tight_layout()
@@ -167,14 +183,16 @@ try:
 # Step 4: Comparison plot after stopping
 # ============================================
 except KeyboardInterrupt:
-    print("\nInterrupted. Plotting final results...")
+    print("")
+    print("\nInterrupted. Plotting final results.")
 
     fig_final = plt.figure(figsize=(12, 8))
 
     # --- Left: Control (u) ---
     ax1 = fig_final.add_subplot(121, projection='3d')
-    ax1.plot_surface(X, Tm, u_new, cmap='viridis', alpha=0.8)
-    ax1.plot_wireframe(X, Tm, np.zeros_like(u_new), color='gray', alpha=0.3)
+    u_desired = np.load("u_desired_w_diff.npy")
+    ax1.plot_wireframe(X, Tm, u_new, color='r', alpha=0.3)
+    ax1.plot_surface(X, Tm, u_desired, cmap='viridis', alpha=0.8)
     ax1.set_title("True source (surface) vs Recovered source (wireframe)")
     ax1.set_xlabel("x")
     ax1.set_ylabel("t")
@@ -183,8 +201,8 @@ except KeyboardInterrupt:
     # --- Right: Solution (y) ---
     ax2 = fig_final.add_subplot(122, projection='3d')
     y_desired = np.load("y_desired_w_diff.npy")
+    ax2.plot_wireframe(X, Tm, y_new, color='r', alpha=0.3)
     ax2.plot_surface(X, Tm, y_desired, cmap='viridis', alpha=0.8)
-    ax2.plot_wireframe(X, Tm, y_new, color='r', alpha=0.6)
     ax2.set_title("True solution (surface) vs Recovered solution (wireframe)")
     ax2.set_xlabel("x")
     ax2.set_ylabel("t")

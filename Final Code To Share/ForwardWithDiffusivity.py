@@ -71,6 +71,7 @@ y = forward_solve(u, y0, Dxx, dt, alpha)
 # Step 4b: Save solution
 # ============================================
 np.save("y_desired_w_diff.npy", y)
+np.save("u_desired_w_diff.npy", u)
 print("Saved solution. OuterloopWithDiffusivity.py uses this solution")
 
 # ============================================

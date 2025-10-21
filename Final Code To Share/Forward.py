@@ -67,6 +67,7 @@ y = forward_solve(u, y0, Dxx, dt)
 # Step 4b: Save solution
 # ============================================
 np.save("y_desired.npy", y)
+np.save("u_desired.npy", u)
 print("Saved solution. Outerloop.py uses this solution")
 
 # ============================================
