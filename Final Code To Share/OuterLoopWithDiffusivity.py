@@ -21,8 +21,8 @@ alpha = 0.01
 y0 = np.zeros(nx)                 # initial guess
 print("Setting desired temperature to y_desired.npy")
 y_d = np.load("y_desired_w_diff.npy")
-y_C = 10 * np.ones((nx, nt))      # state upper bound
-beta = 0                     # beta thing
+y_C = 5 * np.ones((nx, nt))      # state upper bound
+beta = 0                          # beta thing
 
 # penalty and guess initial multiplier (mu)
 mu = np.ones((nx, nt))
