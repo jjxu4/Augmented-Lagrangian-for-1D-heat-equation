@@ -1,0 +1,351 @@
+=== Outer loop iteration 0 ===
+Minimizing Augmented Lagrangian
+Iteration 37772/50000  |  Difference: 9.999486e-04
+Stopping criterion achieved
+||viol||_L2 = 1.719840e-01, ||viol||_max = 7.689995e-04
+Updating multipliers
+
+=== Outer loop iteration 1 ===
+Minimizing Augmented Lagrangian
+Iteration 780/50000  |  Difference: 9.999612e-04
+Stopping criterion achieved
+||viol||_L2 = 2.644754e-01, ||viol||_max = 5.049460e-04
+Updating multipliers
+
+=== Outer loop iteration 2 ===
+Minimizing Augmented Lagrangian
+Iteration 414/50000  |  Difference: 9.999885e-04
+Stopping criterion achieved
+||viol||_L2 = 1.544845e-01, ||viol||_max = 3.467281e-04
+Updating multipliers
+
+=== Outer loop iteration 3 ===
+Minimizing Augmented Lagrangian
+Iteration 208/50000  |  Difference: 9.999969e-04
+Stopping criterion achieved
+||viol||_L2 = 1.102326e-01, ||viol||_max = 2.942768e-04
+Updating multipliers
+
+=== Outer loop iteration 4 ===
+Minimizing Augmented Lagrangian
+Iteration 132/50000  |  Difference: 9.999357e-04
+Stopping criterion achieved
+||viol||_L2 = 8.595545e-02, ||viol||_max = 2.615236e-04
+Updating multipliers
+
+=== Outer loop iteration 5 ===
+Minimizing Augmented Lagrangian
+Iteration 91/50000  |  Difference: 9.999306e-04
+Stopping criterion achieved
+||viol||_L2 = 7.067937e-02, ||viol||_max = 2.345363e-04
+Updating multipliers
+
+=== Outer loop iteration 6 ===
+Minimizing Augmented Lagrangian
+Iteration 63/50000  |  Difference: 9.999627e-04
+Stopping criterion achieved
+||viol||_L2 = 5.969466e-02, ||viol||_max = 2.243392e-04
+Updating multipliers
+
+=== Outer loop iteration 7 ===
+Minimizing Augmented Lagrangian
+Iteration 45/50000  |  Difference: 9.999568e-04
+Stopping criterion achieved
+||viol||_L2 = 5.306212e-02, ||viol||_max = 2.151956e-04
+Updating multipliers
+
+=== Outer loop iteration 8 ===
+Minimizing Augmented Lagrangian
+Iteration 41/50000  |  Difference: 9.999999e-04
+Stopping criterion achieved
+||viol||_L2 = 4.606640e-02, ||viol||_max = 2.037849e-04
+Updating multipliers
+
+=== Outer loop iteration 9 ===
+Minimizing Augmented Lagrangian
+Iteration 28/50000  |  Difference: 9.999543e-04
+Stopping criterion achieved
+||viol||_L2 = 4.255186e-02, ||viol||_max = 1.960136e-04
+Updating multipliers
+
+=== Outer loop iteration 10 ===
+Minimizing Augmented Lagrangian
+Iteration 26/50000  |  Difference: 9.999449e-04
+Stopping criterion achieved
+||viol||_L2 = 3.839104e-02, ||viol||_max = 1.869100e-04
+Updating multipliers
+
+=== Outer loop iteration 11 ===
+Minimizing Augmented Lagrangian
+Iteration 21/50000  |  Difference: 9.999079e-04
+Stopping criterion achieved
+||viol||_L2 = 3.523379e-02, ||viol||_max = 1.790576e-04
+Updating multipliers
+
+=== Outer loop iteration 12 ===
+Minimizing Augmented Lagrangian
+Iteration 16/50000  |  Difference: 9.999046e-04
+Stopping criterion achieved
+||viol||_L2 = 3.290827e-02, ||viol||_max = 1.726502e-04
+Updating multipliers
+
+=== Outer loop iteration 13 ===
+Minimizing Augmented Lagrangian
+Iteration 16/50000  |  Difference: 9.999086e-04
+Stopping criterion achieved
+||viol||_L2 = 3.054192e-02, ||viol||_max = 1.657496e-04
+Updating multipliers
+
+=== Outer loop iteration 14 ===
+Minimizing Augmented Lagrangian
+Iteration 13/50000  |  Difference: 9.999896e-04
+Stopping criterion achieved
+||viol||_L2 = 2.849020e-02, ||viol||_max = 1.596571e-04
+Updating multipliers
+
+=== Outer loop iteration 15 ===
+Minimizing Augmented Lagrangian
+Iteration 13/50000  |  Difference: 9.999454e-04
+Stopping criterion achieved
+||viol||_L2 = 2.644544e-02, ||viol||_max = 1.532440e-04
+Updating multipliers
+
+=== Outer loop iteration 16 ===
+Minimizing Augmented Lagrangian
+Iteration 10/50000  |  Difference: 9.998720e-04
+Stopping criterion achieved
+||viol||_L2 = 2.500266e-02, ||viol||_max = 1.483145e-04
+Updating multipliers
+
+=== Outer loop iteration 17 ===
+Minimizing Augmented Lagrangian
+Iteration 8/50000  |  Difference: 9.999909e-04
+Stopping criterion achieved
+||viol||_L2 = 2.372928e-02, ||viol||_max = 1.441644e-04
+Updating multipliers
+
+=== Outer loop iteration 18 ===
+Minimizing Augmented Lagrangian
+Iteration 8/50000  |  Difference: 9.999536e-04
+Stopping criterion achieved
+||viol||_L2 = 2.247926e-02, ||viol||_max = 1.399407e-04
+Updating multipliers
+
+=== Outer loop iteration 19 ===
+Minimizing Augmented Lagrangian
+Iteration 12/50000  |  Difference: 9.999767e-04
+Stopping criterion achieved
+||viol||_L2 = 2.065088e-02, ||viol||_max = 1.334055e-04
+Updating multipliers
+
+=== Outer loop iteration 20 ===
+Minimizing Augmented Lagrangian
+Iteration 10/50000  |  Difference: 9.999968e-04
+Stopping criterion achieved
+||viol||_L2 = 1.950275e-02, ||viol||_max = 1.283254e-04
+Updating multipliers
+
+=== Outer loop iteration 21 ===
+Minimizing Augmented Lagrangian
+Iteration 10/50000  |  Difference: 9.999456e-04
+Stopping criterion achieved
+||viol||_L2 = 1.860113e-02, ||viol||_max = 1.235693e-04
+Updating multipliers
+
+=== Outer loop iteration 22 ===
+Minimizing Augmented Lagrangian
+Iteration 9/50000  |  Difference: 9.999936e-04
+Stopping criterion achieved
+||viol||_L2 = 1.782400e-02, ||viol||_max = 1.194087e-04
+Updating multipliers
+
+=== Outer loop iteration 23 ===
+Minimizing Augmented Lagrangian
+Iteration 8/50000  |  Difference: 9.999455e-04
+Stopping criterion achieved
+||viol||_L2 = 1.724825e-02, ||viol||_max = 1.158617e-04
+Updating multipliers
+
+=== Outer loop iteration 24 ===
+Minimizing Augmented Lagrangian
+Iteration 6/50000  |  Difference: 9.999609e-04
+Stopping criterion achieved
+||viol||_L2 = 1.683375e-02, ||viol||_max = 1.132096e-04
+Updating multipliers
+
+=== Outer loop iteration 25 ===
+Minimizing Augmented Lagrangian
+Iteration 6/50000  |  Difference: 9.999646e-04
+Stopping criterion achieved
+||viol||_L2 = 1.632794e-02, ||viol||_max = 1.103854e-04
+Updating multipliers
+
+=== Outer loop iteration 26 ===
+Minimizing Augmented Lagrangian
+Iteration 5/50000  |  Difference: 9.999405e-04
+Stopping criterion achieved
+||viol||_L2 = 1.580461e-02, ||viol||_max = 1.078522e-04
+Updating multipliers
+
+=== Outer loop iteration 27 ===
+Minimizing Augmented Lagrangian
+Iteration 4/50000  |  Difference: 9.999760e-04
+Stopping criterion achieved
+||viol||_L2 = 1.532962e-02, ||viol||_max = 1.057212e-04
+Updating multipliers
+
+=== Outer loop iteration 28 ===
+Minimizing Augmented Lagrangian
+Iteration 5/50000  |  Difference: 9.999046e-04
+Stopping criterion achieved
+||viol||_L2 = 1.474853e-02, ||viol||_max = 1.030047e-04
+Updating multipliers
+
+=== Outer loop iteration 29 ===
+Minimizing Augmented Lagrangian
+Iteration 5/50000  |  Difference: 9.999719e-04
+Stopping criterion achieved
+||viol||_L2 = 1.421614e-02, ||viol||_max = 1.002641e-04
+Updating multipliers
+
+=== Outer loop iteration 30 ===
+Minimizing Augmented Lagrangian
+Iteration 5/50000  |  Difference: 9.999571e-04
+Stopping criterion achieved
+||viol||_L2 = 1.373834e-02, ||viol||_max = 9.754331e-05
+Updating multipliers
+
+=== Outer loop iteration 31 ===
+Minimizing Augmented Lagrangian
+Iteration 4/50000  |  Difference: 9.999809e-04
+Stopping criterion achieved
+||viol||_L2 = 1.341928e-02, ||viol||_max = 9.542347e-05
+Updating multipliers
+
+=== Outer loop iteration 32 ===
+Minimizing Augmented Lagrangian
+Iteration 5/50000  |  Difference: 9.999281e-04
+Stopping criterion achieved
+||viol||_L2 = 1.307476e-02, ||viol||_max = 9.281692e-05
+Updating multipliers
+
+=== Outer loop iteration 33 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999774e-04
+Stopping criterion achieved
+||viol||_L2 = 1.288647e-02, ||viol||_max = 9.124796e-05
+Updating multipliers
+
+=== Outer loop iteration 34 ===
+Minimizing Augmented Lagrangian
+Iteration 9/50000  |  Difference: 9.999290e-04
+Stopping criterion achieved
+||viol||_L2 = 1.220139e-02, ||viol||_max = 8.617047e-05
+Updating multipliers
+
+=== Outer loop iteration 35 ===
+Minimizing Augmented Lagrangian
+Iteration 4/50000  |  Difference: 9.999406e-04
+Stopping criterion achieved
+||viol||_L2 = 1.193531e-02, ||viol||_max = 8.389878e-05
+Updating multipliers
+
+=== Outer loop iteration 36 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999948e-04
+Stopping criterion achieved
+||viol||_L2 = 1.171203e-02, ||viol||_max = 8.211351e-05
+Updating multipliers
+
+=== Outer loop iteration 37 ===
+Minimizing Augmented Lagrangian
+Iteration 7/50000  |  Difference: 9.999703e-04
+Stopping criterion achieved
+||viol||_L2 = 1.103506e-02, ||viol||_max = 7.761875e-05
+Updating multipliers
+
+=== Outer loop iteration 38 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999130e-04
+Stopping criterion achieved
+||viol||_L2 = 1.080216e-02, ||viol||_max = 7.574337e-05
+Updating multipliers
+
+=== Outer loop iteration 39 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999008e-04
+Stopping criterion achieved
+||viol||_L2 = 1.055910e-02, ||viol||_max = 7.383617e-05
+Updating multipliers
+
+=== Outer loop iteration 40 ===
+Minimizing Augmented Lagrangian
+Iteration 1/50000  |  Difference: 9.999983e-04
+Stopping criterion achieved
+||viol||_L2 = 1.047457e-02, ||viol||_max = 7.319348e-05
+Updating multipliers
+
+=== Outer loop iteration 41 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999315e-04
+Stopping criterion achieved
+||viol||_L2 = 1.019392e-02, ||viol||_max = 7.122806e-05
+Updating multipliers
+
+=== Outer loop iteration 42 ===
+Minimizing Augmented Lagrangian
+Iteration 2/50000  |  Difference: 9.999764e-04
+Stopping criterion achieved
+||viol||_L2 = 9.996749e-03, ||viol||_max = 6.991294e-05
+Updating multipliers
+
+=== Outer loop iteration 43 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999433e-04
+Stopping criterion achieved
+||viol||_L2 = 9.685596e-03, ||viol||_max = 6.793075e-05
+Updating multipliers
+
+=== Outer loop iteration 44 ===
+Minimizing Augmented Lagrangian
+Iteration 2/50000  |  Difference: 9.999272e-04
+Stopping criterion achieved
+||viol||_L2 = 9.491088e-03, ||viol||_max = 6.664234e-05
+Updating multipliers
+
+=== Outer loop iteration 45 ===
+Minimizing Augmented Lagrangian
+Iteration 2/50000  |  Difference: 9.999700e-04
+Stopping criterion achieved
+||viol||_L2 = 9.307276e-03, ||viol||_max = 6.538301e-05
+Updating multipliers
+
+=== Outer loop iteration 46 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999976e-04
+Stopping criterion achieved
+||viol||_L2 = 9.064754e-03, ||viol||_max = 6.355258e-05
+Updating multipliers
+
+=== Outer loop iteration 47 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999704e-04
+Stopping criterion achieved
+||viol||_L2 = 8.864730e-03, ||viol||_max = 6.181014e-05
+Updating multipliers
+
+=== Outer loop iteration 48 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 9.999880e-04
+Stopping criterion achieved
+||viol||_L2 = 8.681509e-03, ||viol||_max = 6.012763e-05
+Updating multipliers
+
+=== Outer loop iteration 49 ===
+Minimizing Augmented Lagrangian
+Iteration 3/50000  |  Difference: 1.000000e-03
+Stopping criterion achieved
+||viol||_L2 = 8.475447e-03, ||viol||_max = 5.843427e-05
+Updating multipliers
+
+Plotting final results.

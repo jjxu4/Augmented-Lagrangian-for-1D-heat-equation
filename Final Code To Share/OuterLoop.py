@@ -41,7 +41,7 @@ beta = 0                          # beta thing
 
 # penalty and guess initial multiplier (mu)
 mu = np.ones((nx, nt))
-rho = 100.0
+rho = 1000.0
 
 # ============================================
 # Step 1a: Build spatial operator (Dirichlet Laplacian)
@@ -104,7 +104,7 @@ def update_mu(mu, y, y_C, rho):
 # Step 2c: Inner Loop (Minimization of L_A)
 # ============================================
 
-def minimize_L_A(mu, rho, y_d, y_C, beta, max_iter=50, alpha=0.1, eps=0.001, u_hotguess=np.zeros((nx,nt))):
+def minimize_L_A(mu, rho, y_d, y_C, beta, max_iter=50000, alpha=0.1, eps=0.001, u_hotguess=np.zeros((nx,nt))):
     """Gradient descent to minimize L_A."""
     u = u_hotguess
     y = forward_solve(u, y0, Dxx, dt)
@@ -143,9 +143,12 @@ ax1 = fig.add_subplot(121, projection='3d')
 ax2 = fig.add_subplot(122, projection='3d')
 
 try:
+    max_iterations = 50
     iteration = 0
     u_new=np.zeros((nx,nt))
     while True:
+        if iteration == max_iterations:
+            break
         print("")
         print(f"=== Outer loop iteration {iteration} ===")
         print("Minimizing Augmented Lagrangian")
@@ -195,11 +198,13 @@ try:
 
 
         iteration += 1
-
+    
 # ============================================
-# Step 4: Comparison plot after stopping
+# Step 4: Comparison plot after manually stopping
 # ============================================
 except KeyboardInterrupt:
+    print("")
+    print("\nInterrupted. Plotting final results.")
     fig_final = plt.figure(figsize=(12, 8))
 
     # --- Left: Control (u) ---
@@ -225,3 +230,32 @@ except KeyboardInterrupt:
     plt.tight_layout()
     plt.show()
 
+# ============================================
+# Step 4: Comparison plot after stopping
+# ============================================ 
+print("")
+print("Plotting final results.")
+fig_final = plt.figure(figsize=(12, 8))
+
+# --- Left: Control (u) ---
+ax1 = fig_final.add_subplot(121, projection='3d')
+u_desired = np.load("u_desired.npy")
+ax1.plot_surface(X, Tm, u_desired, cmap='viridis', alpha=0.8)
+ax1.plot_wireframe(X, Tm, u_new, color='r', alpha=0.6)
+ax1.set_title("True source (surface) vs Recovered source (wireframe)")
+ax1.set_xlabel("x")
+ax1.set_ylabel("t")
+ax1.set_zlabel("f/u")
+
+# --- Right: Solution (y) ---
+ax2 = fig_final.add_subplot(122, projection='3d')
+y_desired = np.load("y_desired.npy")
+ax2.plot_surface(X, Tm, y_desired, cmap='viridis', alpha=0.8)
+ax2.plot_wireframe(X, Tm, y_new, color='r', alpha=0.6)
+ax2.set_title("True solution (surface) vs Recovered solution (wireframe)")
+ax2.set_xlabel("x")
+ax2.set_ylabel("t")
+ax2.set_zlabel("y")
+
+plt.tight_layout()
+plt.show()
