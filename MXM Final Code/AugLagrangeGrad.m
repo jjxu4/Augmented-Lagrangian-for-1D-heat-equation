@@ -1,70 +1,71 @@
-% Define params
-clear variables
-close all
-[params, endpoints] = create_params_optimize();
+function [gJ] = AugLagrangeGrad(q, source, params, endpoints, ud, pd, u_max, p_max)
+    
+    nx=params.nx;
+    nt=params.nt;
+    scaleu=1;
+    scalep=1;
+    u_max=reshape(u_max, nx+1, nt+1);
+    p_max=reshape(p_max, nx+1, nt);
+    ud=reshape(ud, nx+1, nt+1);
+    pd=reshape(pd, nx+1, nt);
 
-%If you want k to be a function of time define params.k. If not, then
-%simply defining params.kref is enough.
-params.kref=1;
-%params.k = @(t)4*t+1;
-%params.k = @(t)t;
+    %%% Trap, Trap_doub
+    % Need to make these bigger. We need Trap_doub to have 2*n d's and Trap to have n ds.
+    d=params.deltax*ones(params.nx+1,1);
+    d(1,1)=d(1,1)/2;
+    d(params.nx+1,1)=d(params.nx+1,1)/2;
+    d=repmat(d,nt,1);
+    d=params.deltat*d;
+    d2=[scaleu*d;scalep*d];
 
-params.nx = 24;
-params.nt = 24;
-total_u = (params.nx+1) * (params.nt+1);
-total_p = (params.nx+1) * (params.nt);
-params.u_max=ones(1, total_u)*1e3;
-params.p_max=ones(1, total_p)*1e3;
-params.gamma=2;
-params.tau=0.9;
-params.R=1e5;
-params.epsilon=1e-4;
+    % The Trap_doub and Trap compute trapezoidal integration with respect to space and right endpoint integration with respect to time.
+    Trap_doub=spdiags(d2,0,nt*2*(nx+1),nt*2*(nx+1));
+    Trap=spdiags(d,0,nt*(nx+1),nt*(nx+1));
 
-% placeholder
-params.u_d=ones(1, total_u);
-params.p_d=ones(1, total_p);
-params.mu_initial_u=zeros(1, total_u);
-params.mu_initial_p=zeros(1, total_p);
-params.rho_initial=1;
+    %%% unpacking
+    source.F=q;
+    setup=2;
+    mu1=reshape(params.mu{1}, nx+1, nt+1);   % vector
+    mu2=reshape(params.mu{2}, nx+1, nt+1);
+    mu3=reshape(params.mu{3}, nx+1, nt);
+    mu4=reshape(params.mu{4}, nx+1, nt);
+    rho1=params.rho{1}; % scalar
+    rho2=params.rho{2};
+    rho3=params.rho{3};
+    rho4=params.rho{4};
+    [u,p,M,~,matrices]=approxPVEsol(params,source,endpoints,setup,params.nx);
+    W=Trap_doub(1:2*nx+2,1:2*nx+2);
 
-%if you want k as a function of x and t you have to put in a matrix
-%params.k=5*rand(params.nx, params.nt);
+    %%% g1: GTv, v = W(y-yd)
+    source.z1=u(:,2:end)-ud(:,2:end);
+    source.z2=p-pd;
+    v=W*[source.z1;source.z2];
+    g1=solve_adj(params,v,M,matrices.BcalF,matrices.Bcal);
 
+    %%% g2: betaWq term
+    c=(nx+1)*nt;
+    F=reshape(source.F,c,1);
+    lam_trap_F=params.lambda*Trap*F;
+    g2=reshape(lam_trap_F,nx+1,nt);
 
-% Parameters to scale a constant in front of u-ud term in cost function and
-% in front of p-pd term in cost function
-scaleu=1;
-scalep=1;
+    %%% gAL: ρ1, ρ3
+    d1=(mu1+rho1.*(u-u_max));
+    d1_use=d1(:,2:end);
+    d3=mu3+rho3.*(p-p_max);
+    d_diff=[d1_use;d3];
+    d13_penalized=max(d_diff,0);
+    d13=W*d13_penalized;
 
-%Set parameter to describe case. 1=constantlinear, 2=linear, 3=constantnonlinear, 4=nonlinear.
-setup=2;
+    %%% gAL: ρ2, ρ4
+    d2=(mu2+rho2.*(-u));
+    d4=(mu4+rho4.*(-p));
+    d2_use=d2(:,2:end);
+    d_weighted=[d2_use;d4];
+    d24_penalized=-max(d_weighted,0);
+    d24=W*d24_penalized;
 
-params.deltat = (endpoints.tend-endpoints.tstart)/params.nt;
-t = linspace(endpoints.tstart,endpoints.tend,params.nt+1);
-x = linspace(endpoints.xstart,endpoints.xend,params.nx+1);
-params.deltax = (endpoints.xend-endpoints.xstart)/params.nx;
-params.W = params.deltax*params.deltat;
-params.beta=1;
-params.mu={params.mu_initial_u, params.mu_initial_u, params.mu_initial_p, params.mu_initial_p};
-params.mu_initial={params.mu_initial_u, params.mu_initial_u, params.mu_initial_p, params.mu_initial_p};
-params.rho={params.rho_initial, params.rho_initial, params.rho_initial, params.rho_initial};
-params.lambda = 1e-5;
+    dAL=d13+d24;
+    gAL=solve_adj(params,dAL,M,matrices.BcalF,matrices.Bcal);
 
-%Find u tilde and p tilde which represent the solution with the control set
-%to zero adn all other conditions set as desired.
-[F,source.S,source.g,source.psi,ud_fun,pd_fun] = tc2source(params, endpoints.xend);
-
-q0 = ones(1, total_p);
-source.F=q0;
-
-tend = t(2:end);
-[X_full,T_full]=meshgrid(x,t);
-[X,T] = meshgrid(x, tend);
-%source.F = F(X, T)';
-            
-source.bcu=@(y)zeros(size(y));
-source.bcp=@(y)zeros(size(y));
-source.IC=@(y)zeros(size(y));
-
-% Call OuterLoop
-q_opt = OuterLoop(q0, params, source, endpoints);
+    gJ = g1 + g2 + gAL;
+end
