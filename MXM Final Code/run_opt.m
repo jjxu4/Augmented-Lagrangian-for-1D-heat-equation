@@ -8,7 +8,6 @@ params.kref=1;
 %params.k = @(t)4*t+1;
 %params.k = @(t)t;
 
-
 params.nx = 24;
 params.nt = 24;
 

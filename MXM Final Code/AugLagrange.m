@@ -1,4 +1,4 @@
-function L = AugLagrange(q, params)
+function L = AugLagrange(q, params, source, endpoints)
 % Computes the scalar value of the Augmented Lagrangian
     
     % Helper function
@@ -8,7 +8,10 @@ function L = AugLagrange(q, params)
     end
 
     % PLACEHOLDER !!!!!
-    [u, p] = approxPVEsol(q, params);
+    source.F=q;
+    [u, p] = approxPVEsol(params,source,endpoints,2);
+    u = u(:).';
+    p = p(:).';
 
     % Basic parameters
     W      = params.W;        % scalar dx*dt
@@ -29,12 +32,12 @@ function L = AugLagrange(q, params)
 
     % Second half
     penalty_1 = (norm_squared(max(mu{1} + rho{1} * (u - u_max), 0)) - norm_squared(mu{1}))* W * 0.5 * (1/rho{1});
-    penalty_2 = (norm_squared(max(mu{2} + rho{2} * (-u), 0)) - norm_squared(mu{2}))* W * 0.5 * (1/rho{2});
+    penalty_2 = (norm_squared(max(mu{2} + rho{2} * (-1*u), 0)) - norm_squared(mu{2}))* W * 0.5 * (1/rho{2});
     penalty_3 = (norm_squared(max(mu{3} + rho{3} * (p - p_max), 0)) - norm_squared(mu{3})) * W * 0.5 * (1/rho{3});
-    penalty_4 = (norm_squared(max(mu{4} + rho{4} * (-p), 0)) - norm_squared(mu{4})) * W * 0.5 * (1/rho{4});
+    penalty_4 = (norm_squared(max(mu{4} + rho{4} * (-1*p), 0)) - norm_squared(mu{4})) * W * 0.5 * (1/rho{4});
 
     % return
-    f = u_portion + p_portion + q_portion + penalty_1 + penalty_2 + penalty_3 + penalty_4;
+    L = u_portion + p_portion + q_portion + penalty_1 + penalty_2 + penalty_3 + penalty_4;
 end
 
 

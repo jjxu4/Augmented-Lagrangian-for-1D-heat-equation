@@ -13,7 +13,6 @@ function [u,p,M,b,matrices] = approxPVEsol(params,source,endpoints,setup,a)
 % else
 %   params.n = 2560;
 % end
-
 params.n=params.nx; %To do: change all params.n in the code.
 
 %Change source names for adjoint

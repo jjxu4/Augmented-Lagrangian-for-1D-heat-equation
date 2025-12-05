@@ -32,6 +32,9 @@ function [gJ] = AugLagrangeGrad(q, source, params, endpoints, ud, pd, u_max, p_m
     [u,p,M,~,matrices]=approxPVEsol(params,source,endpoints,setup,params.nx);
     W=Trap_doub(1:2*nx+2,1:2*nx+2);
 
+    u = u(:).';
+    p = p(:).';
+    
     %%% g1: GTv, v = W(y-yd)
     source.z1=u(:,2:end)-ud(:,2:end);
     source.z2=p-pd;

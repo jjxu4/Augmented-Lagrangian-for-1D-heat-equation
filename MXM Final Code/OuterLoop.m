@@ -1,4 +1,4 @@
-function q_optimal = OuterLoop(q0, params)
+function q_optimal = OuterLoop(q0, params, source, endpoints)
 
     % Basic parameters
     rho = params.rho_initial;
@@ -20,7 +20,7 @@ function q_optimal = OuterLoop(q0, params)
 
     while R > epsilon
         % Step 1
-        [q_opt, u_opt, p_opt, fval, exitflag, output] = InnerLoop(q, params);
+        [q_opt, u_opt, p_opt, fval, exitflag, output] = InnerLoop(q, params, source, endpoints);
     
         % TODO: display some diagnostics
     
