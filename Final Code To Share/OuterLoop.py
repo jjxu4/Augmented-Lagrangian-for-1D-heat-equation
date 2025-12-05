@@ -162,6 +162,8 @@ try:
         
         print("Updating multipliers")
         mu = update_mu(mu, y_new, y_C, rho)
+        # r_K = calculate_R_K()
+        # if 
 
         # --- Plot y(x,t), y_C, and u(x,t) ---
         fig = plt.figure(figsize=(12, 8))
