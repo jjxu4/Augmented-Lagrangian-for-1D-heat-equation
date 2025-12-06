@@ -52,10 +52,6 @@ setup = 2;  % linear PVE
 % u_desired: (nx+1) x (nt+1)
 % p_desired: (nx+1) x nt
 
-% If you want, you can compare with exactu/exactp to see the discretization error:
-% u_exact_grid = exactu(X_full, T_full)';
-% p_exact_grid = exactp(X, T)';
-
 % Now we initialize our OuterLoop call
 
 params.u_d = u_desired(:);  % vector length (nx+1)*(nt+1)
@@ -94,8 +90,8 @@ params.gamma   = 2;
 params.tau     = 0.9;
 params.epsilon = 1e-3;
 
-% Initial residual scale (simple choice)
-params.R = 1e3;   % or compute from initial guess if you like
+% Initial residual scale. same as the one used in 24 paper
+params.R = 1e3; 
 
 
 % Run OuterLoop ===========================================================
@@ -109,6 +105,7 @@ diff_q = q_optimal - q_actual;
 rel_err_q = norm(diff_q(:)) / norm(q_actual(:));
 fprintf('Relative error in q: %e\n', rel_err_q);
 
+% Everything after this is for plotting. TODO: make good looking plots
 % Recover optimal states with q_optimal
 source.F = q_optimal;
 [u_optimal, p_optimal] = approxPVEsol(params, source, endpoints, setup);
