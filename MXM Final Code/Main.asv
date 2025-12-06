@@ -66,10 +66,10 @@ Pscale = max(1, max(abs(p_desired(:))));
 
 % CHANGE THIS LATER
 % state constraints big enough to be irrelevant for now
-u_max_grid =  20 * ones(size(u_desired));
-u_min_grid = -20 * ones(size(u_desired));
-p_max_grid =  20 * ones(size(p_desired));
-p_min_grid = -20 * ones(size(p_desired));
+u_max_grid =  10 * Uscale * ones(size(u_desired));
+u_min_grid = -10 * Uscale * ones(size(u_desired));
+p_max_grid =  10 * Pscale * ones(size(p_desired));
+p_min_grid = -10 * Pscale * ones(size(p_desired));
 
 params.u_max = u_max_grid(:);
 params.u_min = u_min_grid(:);
@@ -113,11 +113,12 @@ fprintf('Relative error in q: %e\n', rel_err_q);
 source.F = q_optimal;
 [u_optimal, p_optimal] = approxPVEsol(params, source, endpoints, setup);
 
-% Prepare plotting grids ==================================================
-X_full_plot = X_full';   
-T_full_plot = T_full';   
-X_plot = X';             
-T_plot = T';             
+% Prepare plotting grids with same orientation as u/p/q (nx+1 x nt or nt+1)
+X_full_plot = X_full';   % (nx+1) x (nt+1)
+T_full_plot = T_full';   % (nx+1) x (nt+1)
+
+X_plot = X';             % (nx+1) x nt
+T_plot = T';             % (nx+1) x nt
 
 % -------------------------------------------------------------------------
 % 1. Plot q_actual
@@ -125,9 +126,10 @@ T_plot = T';
 figure(1);
 surf(X_plot, T_plot, q_actual, 'EdgeColor', 'none');
 title('q\_actual');
-xlabel('x'); ylabel('t'); zlabel('q');
-pbaspect([1 1 1])
-view(135, 30);
+xlabel('x');
+ylabel('t');
+zlabel('q');
+view(100, 30);
 colorbar;
 rotate3d on;
 
@@ -136,31 +138,33 @@ rotate3d on;
 % -------------------------------------------------------------------------
 figure(2);
 
-% --- LEFT: u_desired ---
+% --- LEFT: u_desired with bounds ---
 subplot(1,2,1);
 surf(X_full_plot, T_full_plot, u_desired, 'EdgeColor', 'none');  
 hold on;
 surf(X_full_plot, T_full_plot, u_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_full_plot, T_full_plot, u_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('u\_desired with bounds');
-xlabel('x'); ylabel('t'); zlabel('u');
+title('u\_desired with u\_min, u\_max');
+xlabel('x');
+ylabel('t');
+zlabel('u');
 legend({'u\_desired','u\_max','u\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
-view(135, 30);
+view(100, 30);
 colorbar;
 rotate3d on;
 
-% --- RIGHT: p_desired ---
+% --- RIGHT: p_desired with bounds ---
 subplot(1,2,2);
 surf(X_plot, T_plot, p_desired, 'EdgeColor', 'none');  
 hold on;
 surf(X_plot, T_plot, p_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_plot, T_plot, p_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('p\_desired with bounds');
-xlabel('x'); ylabel('t'); zlabel('p');
+title('p\_desired with p\_min, p\_max');
+xlabel('x');
+ylabel('t');
+zlabel('p');
 legend({'p\_desired','p\_max','p\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
-view(135, 30);
+view(100, 30);
 colorbar;
 rotate3d on;
 
@@ -170,9 +174,10 @@ rotate3d on;
 figure(3);
 surf(X_plot, T_plot, q_optimal, 'EdgeColor', 'none');
 title('q\_optimal');
-xlabel('x'); ylabel('t'); zlabel('q');
-pbaspect([1 1 1])
-view(135, 30);
+xlabel('x');
+ylabel('t');
+zlabel('q');
+view(100, 30);
 colorbar;
 rotate3d on;
 
@@ -181,30 +186,35 @@ rotate3d on;
 % -------------------------------------------------------------------------
 figure(4);
 
-% --- LEFT: u_optimal ---
+% --- LEFT: u_optimal with bounds ---
 subplot(1,2,1);
 surf(X_full_plot, T_full_plot, u_optimal, 'EdgeColor', 'none');  
 hold on;
 surf(X_full_plot, T_full_plot, u_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_full_plot, T_full_plot, u_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('u\_optimal with bounds');
-xlabel('x'); ylabel('t'); zlabel('u');
+title('u\_optimal with u\_min, u\_max');
+xlabel('x');
+ylabel('t');
+zlabel('u');
 legend({'u\_optimal','u\_max','u\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
 view(135, 30);
 colorbar;
 rotate3d on;
 
-% --- RIGHT: p_optimal ---
+% --- RIGHT: p_optimal with bounds ---
 subplot(1,2,2);
 surf(X_plot, T_plot, p_optimal, 'EdgeColor', 'none');  
 hold on;
 surf(X_plot, T_plot, p_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_plot, T_plot, p_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('p\_optimal with bounds');
-xlabel('x'); ylabel('t'); zlabel('p');
+title('p\_optimal with p\_min, p\_max');
+xlabel('x');
+ylabel('t');
+zlabel('p');
 legend({'p\_optimal','p\_max','p\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
 view(135, 30);
 colorbar;
 rotate3d on;
+
+
+

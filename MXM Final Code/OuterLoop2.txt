@@ -1,0 +1,147 @@
+function q_optimal = OuterLoop(q_initial, params, source, endpoints)
+% Implements Algorithm 2 in 2024 paper. 
+
+% q_initial is expected to be an (nx + 1) X (nt) grid
+
+    % Basic parameters
+    rho = params.rho_initial;
+    mu = params.mu_initial;
+    gamma = params.gamma;
+    tau = params.tau;
+    R_0 = params.R;
+    epsilon = params.epsilon;   % this is the optimality tolerance
+
+    nx = params.nx;
+    nt = params.nt;
+
+    % state constraints. These are expected to be vectors
+    u_max = params.u_max;
+    p_max = params.p_max;
+    u_min = params.u_min;
+    p_min = params.p_min;
+
+    W = params.W;
+
+
+    k = 1; % steps
+
+    q_n = q_initial; % initialize guess
+
+    % To adapt Algorithm 2 in the paper to our problem which has multiple
+    % inequality constraints, I define four residuals to keep track of.
+    % Each one separately governs how its respective mu{i} and rho{i} will
+    % be updated. The stopping criterion is now that the maximum of the
+    % four residuals must be less than the tolerance.
+
+    R_n_minus_1 = {R_0, R_0, R_0, R_0};
+    R_max = R_0;
+    disp("======================== Starting Outer Loop ========================")
+    while R_max > epsilon
+        % TODO: display iteration number (k) and current R_n_minus_1
+
+        % Step 1: Solve inner loop problem
+        params.mu  = mu;
+        params.rho = rho;
+        [q_k_bar, u_k_bar, p_k_bar, fval, exitflag, output] = InnerLoop(q_n, params, source, endpoints);
+        
+        % InnerLoop returns all as grids. we need to convert them to
+        % vectors
+        q_k_bar = q_k_bar(:);
+        u_k_bar = u_k_bar(:);
+        p_k_bar = p_k_bar(:);
+
+        % Step 2: define potential mu updates
+        mu_1_bar = max(rho{1} * (u_k_bar - u_max) + mu{1}, 0);
+        mu_2_bar = max(rho{2} * (u_min - u_k_bar) + mu{2}, 0);
+        mu_3_bar = max(rho{3} * (p_k_bar - p_max) + mu{3}, 0);
+        mu_4_bar = max(rho{4} * (p_min - p_k_bar) + mu{4}, 0);
+    
+        % Step 3: compute per-constraint residuals R1, ..., R4
+        % Each R_i has: L^inf violation + | integral(mu_i_bar * (g_i (u,p) )) |
+
+        % Constraint 1: u <= u_max, g1 = u - u_max
+        g1 = u_k_bar - u_max;
+        g1_pos = max(g1, 0);
+        R1_inf = max(g1_pos);   % sup violation
+        R1_int = abs( W * sum( mu_1_bar .* (u_max - u_k_bar) ) );
+        R1_k = R1_inf + R1_int;
+
+        % Constraint 2: u >= u_min, g2 = u_min - u
+        g2 = u_min - u_k_bar;
+        g2_pos = max(g2, 0);
+        R2_inf = max(g2_pos);
+        R2_int = abs( W * sum( mu_2_bar .* (u_k_bar - u_min) ) );
+        R2_k = R2_inf + R2_int;
+
+        % Constraint 3: p <= p_max, g3 = p - p_max
+        g3 = p_k_bar - p_max;
+        g3_pos = max(g3, 0);
+        R3_inf = max(g3_pos);
+        R3_int = abs( W * sum( mu_3_bar .* (p_max - p_k_bar) ) );
+        R3_k = R3_inf + R3_int;
+
+        % Constraint 4: p >= p_min, g4 = p_min - p
+        g4 = p_min - p_k_bar;
+        g4_pos = max(g4, 0);
+        R4_inf = max(g4_pos);
+        R4_int = abs( W * sum( mu_4_bar .* (p_k_bar - p_min) ) );
+        R4_k = R4_inf + R4_int;	
+
+        % Step 4: update mu_i, rho_i individually based on R_i
+        % If R_i improved enough, accept mu_bar_i and keep rho_i.
+        % Otherwise, keep mu_i and increase rho_i.
+
+        % Constraint 1
+        if R1_k <= tau * R_n_minus_1{1}
+            % Successful
+            mu{1} = mu_1_bar;
+            R_n_minus_1{1} = R1_k;
+        else
+            % Unsuccessful
+            rho{1} = rho{1} * gamma;
+        end
+
+        % Constraint 2
+        if R2_k <= tau * R_n_minus_1{2}
+            % Successful
+            mu{2} = mu_2_bar;
+            R_n_minus_1{2} = R2_k;
+        else
+            % Unsuccessful
+            rho{2} = rho{2} * gamma;
+        end
+
+        % Constraint 3
+        if R3_k <= tau * R_n_minus_1{3}
+            % Successful
+            mu{3}          = mu_3_bar;
+            R_n_minus_1{3} = R3_k;
+        else
+            % Unsuccessful
+            rho{3} = rho{3} * gamma;
+        end
+
+        % Constraint 4
+        if R4_k <= tau * R_n_minus_1{4}
+            % Successful
+            mu{4}          = mu_4_bar;
+            R_n_minus_1{4} = R4_k;
+        else
+            % Unsuccessful
+            rho{4} = rho{4} * gamma;
+        end
+
+        % Step 5: update control for next inner solve (warm start).
+        % InnerLoop expects q_n to be a grid
+        q_n = reshape(q_k_bar, nx+1, nt);
+
+        % For stopping criterion, use CURRENT residuals
+        R_curr = [R1_k, R2_k, R3_k, R4_k];
+        R_max  = max(R_curr);
+
+        % update outer iteration counter
+        k = k + 1;
+    end
+
+    q_optimal = q_n;
+end

@@ -1,26 +1,62 @@
-function [q_opt, u_opt, p_opt, fval, exitflag, output] = InnerLoop(q0, params, source, endpoints)
-    % Minimizes the Augmented Lagrangian w.r.t q, where q0 is the initial guess
+function [q_opt, u_opt, p_opt, fval, exitflag, output] = InnerLoop(q_guess, params, source, endpoints)
+    % Minimizes the Augmented Lagrangian w.r.t q, where q_guess is the
+    % intial guess. q_guess is expected to be an (nx + 1) X (nt) grid. 
 
-    % Helper function
-    function [L, g] = AugLag_and_grad(q, params, source, endpoints)
+    % q_opt (nx+1) X (nt), u_opt (nx + 1) X (nt + 1), p_opt (nx + 1) X (nt)
+    % are returned as grids.
+
+
+    % Convert initial guess to VECTOR for fminunc (required to do this)
+    q_guess_vec = q_guess(:);
+    
+    nx = params.nx;
+    nt = params.nt;
+
+
+
+    % Helper function. fminunc requires this.
+    function [L, g] = AugLag_and_grad(q_vec)
+        % fminunc requires the q_vec input to be a vector.
+
+        % First convert q to a grid, which AugLagrange and AugLagrangeGrad
+        % expect
+        q_grid = reshape(q_vec, nx+1, nt);
+
         % Augmented Lagrangian Value at q
-        L = AugLagrange(q, params, source, endpoints);
+        L = AugLagrange(q_grid, params, source, endpoints);
     
         % Gradient at q
-        % PLACEHOLDER !!!!!
-        g = AugLagrangeGrad(q, source, params, endpoints, params.u_d, params.p_d, params.u_max, params.p_max);
+        g_grid = AugLagrangeGrad(q_grid, source, params, endpoints, params.u_d, params.p_d, params.u_max, params.p_max, params.u_min, params.p_min);
+
+        % AugLagrangeGrad returns g as a grid, so we need to convert it to
+        % a vector, which fminunc expects
+        g = g_grid(:); 
+
     end
 
     % Settings for fminunc function
-    options = optimoptions('fminunc', 'Algorithm', 'quasi-newton', 'SpecifyObjectiveGradient', true, 'Display', 'iter');
+    options = optimoptions('fminunc', ...
+        'Algorithm', 'quasi-newton', ...          % use BFGS algorithm
+        'MaxIterations', Inf, ...                 % no iteration limit
+        'MaxFunctionEvaluations', Inf, ...        % no function call limit
+        'StepTolerance', 1e-6, ...                % stops if || q_(k+1) - q_k || < StepTolerance
+        'OptimalityTolerance', 1e-6, ...          % stops if grad L(q) < OptimalityTolerance
+        'SpecifyObjectiveGradient', true, ...     % we provide gradient
+        'Display', 'iter');                       % show iteration info
 
-    % returns value of augmented Lagrangian and gradient of augmented Lagrangian
-    fun = @(q) AugLag_and_grad(q, params, source, endpoints);
+    % returns value of augmented Lagrangian and gradient of augmented
+    % Lagrangian. Required for fminunc.
+    fun = @(q) AugLag_and_grad(q);
 
     % optimize
-    [q_opt, fval, exitflag, output] = fminunc(fun, q0, options);
+    [q_opt, fval, exitflag, output] = fminunc(fun, q_guess_vec, options);
+
+
+    % q_opt is returned as a vector. approxPVEsol expects it as a grid. so
+    % we convert it here
+    q_opt = reshape(q_opt, nx+1, nt);
 
     % recover optimal states
+    source.F = q_opt;
     [u_opt, p_opt] = approxPVEsol(params, source, endpoints, 2);
 end
-

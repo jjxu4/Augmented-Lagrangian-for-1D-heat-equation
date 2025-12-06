@@ -4,6 +4,9 @@ function [u,p,M,b,matrices] = approxPVEsol(params,source,endpoints,setup,a)
 %For PVE model, nodes argment is optional with default 2560. To caclulate
 %adjoint, must enter nodes and a as the 6th argument.
 
+% u is returned as (nx + 1) X (nt + 1)
+% p is returned as (nx + 1) X (nt)
+
 
 %This section sets the default number of nodes to 2560
 % if nargin >4
