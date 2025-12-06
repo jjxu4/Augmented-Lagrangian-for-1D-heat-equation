@@ -17,6 +17,10 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
 
     W = params.W;
 
+    % history of residuals and penalty parameters (indexed by successful steps)
+    R_hist  = [];               % will store R_k for successful steps
+    rho_hist = [];              % each row: [rho1, rho2, rho3, rho4]
+
     % state constraints. These are expected to be vectors
     u_max = params.u_max;
     p_max = params.p_max;
@@ -72,25 +76,30 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
         % Step 4
         if R_k <= tau * R_n_minus_1
             % Successful step
-
+        
             % update mu
             mu{1} = mu_1_bar;
             mu{2} = mu_2_bar;
             mu{3} = mu_3_bar;
             mu{4} = mu_4_bar;
-
+        
             % rho remains the same
             % update optimal q. need to convert back into grid, because
             % that is what InnerLoop expects
             q_n = q_k_bar;
             q_n = reshape(q_n, nx+1, nt);
-
+        
             % update R
             R_n_minus_1 = R_k;
-
+        
+            % log history for this successful iteration
+            R_hist(end+1,1)     = R_k;
+            rho_hist(end+1,1:4) = [rho{1}, rho{2}, rho{3}, rho{4}];
+        
             % increase succesful step counter
             n = n + 1;
             disp("Succesful step")
+
     
         else
             % Unsuccessful step
@@ -111,7 +120,33 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
         % update counter
         k = k + 1;
     end
-    fprintf('\n--------- Outer Finished %d ---------\n', k);
+    fprintf('\n--------- Outer Loop Finished %d ---------\n', k);
     fprintf('Final residual R_{k-1} = %.6e\n', R_n_minus_1);
     q_optimal = q_n;
+
+    % ===================== Plot histories ==========================
+    if ~isempty(R_hist)
+        succ_iter = 1:numel(R_hist);
+
+        % Plot residual history (log scale is usually informative)
+        figure;
+        semilogy(succ_iter, R_hist, '-o', 'LineWidth', 1.5);
+        grid on;
+        xlabel('Successful outer iteration');
+        ylabel('Residual R_k');
+        title('Residual history (successful iterations)');
+
+        % Plot penalty parameter history
+        figure;
+        plot(succ_iter, rho_hist(:,1), '-o', ...
+             succ_iter, rho_hist(:,2), '-s', ...
+             succ_iter, rho_hist(:,3), '-^', ...
+             succ_iter, rho_hist(:,4), '-d', 'LineWidth', 1.5);
+        grid on;
+        xlabel('Successful outer iteration');
+        ylabel('\rho');
+        title('Penalty parameters history (successful iterations)');
+        legend({'\rho_1','\rho_2','\rho_3','\rho_4'}, 'Location', 'best');
+    end
+    % ===============================================================
 end

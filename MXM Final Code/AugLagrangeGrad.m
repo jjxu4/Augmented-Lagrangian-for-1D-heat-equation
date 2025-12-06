@@ -1,4 +1,4 @@
-    function [gJ] = AugLagrangeGrad(q, source, params, endpoints, ud, pd, u_max, p_max, u_min, p_min)
+function [gJ] = AugLagrangeGrad(q, source, params, endpoints, ud, pd, u_max, p_max, u_min, p_min)
     % gJ is returned as (nx + 1) X (nt)
     
     % ud, pd, u_max, u_min, p_max, p_min are expected to be stacked vectors

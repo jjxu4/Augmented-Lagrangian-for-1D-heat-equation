@@ -1,7 +1,7 @@
 % Create Params
 
 % Important notes:
-% 1. mu{1}, ..., mu{4} must be column vectors.
+% 1. mu{1}, ..., mu{4} must be column vectors.clear
 
 % initialization
 
@@ -62,10 +62,10 @@ Pscale = max(1, max(abs(p_desired(:))));
 
 % CHANGE THIS LATER
 % state constraints big enough to be irrelevant for now
-u_max_grid =  20 * ones(size(u_desired));
-u_min_grid = -20 * ones(size(u_desired));
-p_max_grid =  20 * ones(size(p_desired));
-p_min_grid = -20 * ones(size(p_desired));
+u_max_grid =  7 * ones(size(u_desired));
+u_min_grid = -7 * ones(size(u_desired));
+p_max_grid =  7 * ones(size(p_desired));
+p_min_grid = -7 * ones(size(p_desired));
 
 params.u_max = u_max_grid(:);
 params.u_min = u_min_grid(:);
@@ -105,7 +105,7 @@ diff_q = q_optimal - q_actual;
 rel_err_q = norm(diff_q(:)) / norm(q_actual(:));
 fprintf('Relative error in q: %e\n', rel_err_q);
 
-% Everything after this is for plotting. TODO: make good looking plots
+%% Everything after this is for plotting. TODO: make good looking plots
 % Recover optimal states with q_optimal
 source.F = q_optimal;
 [u_optimal, p_optimal] = approxPVEsol(params, source, endpoints, setup);
@@ -129,12 +129,9 @@ colorbar;
 rotate3d on;
 
 % -------------------------------------------------------------------------
-% 2. Plot u_desired (left) and p_desired (right) with bounds
+% 2A. Plot u_desired with bounds (SEPARATE FIGURE)
 % -------------------------------------------------------------------------
 figure(2);
-
-% --- LEFT: u_desired ---
-subplot(1,2,1);
 surf(X_full_plot, T_full_plot, u_desired, 'EdgeColor', 'none');  
 hold on;
 surf(X_full_plot, T_full_plot, u_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
@@ -147,8 +144,10 @@ view(135, 30);
 colorbar;
 rotate3d on;
 
-% --- RIGHT: p_desired ---
-subplot(1,2,2);
+% -------------------------------------------------------------------------
+% 2B. Plot p_desired with bounds (SEPARATE FIGURE)
+% -------------------------------------------------------------------------
+figure(3);
 surf(X_plot, T_plot, p_desired, 'EdgeColor', 'none');  
 hold on;
 surf(X_plot, T_plot, p_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
@@ -161,10 +160,11 @@ view(135, 30);
 colorbar;
 rotate3d on;
 
+
 % -------------------------------------------------------------------------
 % 3. Plot q_optimal
 % -------------------------------------------------------------------------
-figure(3);
+figure(4);
 surf(X_plot, T_plot, q_optimal, 'EdgeColor', 'none');
 title('q\_optimal');
 xlabel('x'); ylabel('t'); zlabel('q');
@@ -174,12 +174,9 @@ colorbar;
 rotate3d on;
 
 % -------------------------------------------------------------------------
-% 4. Plot u_optimal (left) and p_optimal (right) with bounds
+% 4A. Plot u_optimal with bounds (SEPARATE FIGURE)
 % -------------------------------------------------------------------------
-figure(4);
-
-% --- LEFT: u_optimal ---
-subplot(1,2,1);
+figure(5);
 surf(X_full_plot, T_full_plot, u_optimal, 'EdgeColor', 'none');  
 hold on;
 surf(X_full_plot, T_full_plot, u_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
@@ -192,8 +189,10 @@ view(135, 30);
 colorbar;
 rotate3d on;
 
-% --- RIGHT: p_optimal ---
-subplot(1,2,2);
+% -------------------------------------------------------------------------
+% 4B. Plot p_optimal with bounds (SEPARATE FIGURE)
+% -------------------------------------------------------------------------
+figure(6);
 surf(X_plot, T_plot, p_optimal, 'EdgeColor', 'none');  
 hold on;
 surf(X_plot, T_plot, p_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
