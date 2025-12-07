@@ -1,9 +1,7 @@
-% Create Params
+% main_new.m – AL version using ARMA461 source like run_opt_new
 
 % Important notes:
 % 1. mu{1}, ..., mu{4} must be column vectors.
-
-% initialization
 
 clear variables
 close all
@@ -11,7 +9,7 @@ close all
 [params, endpoints] = create_params_optimize_new();
 
 % gridding parameters
-params.nx = 24;
+params.nx = 24;   % you can change to 96 like run_opt_new if desired
 params.nt = 24;
 nx = params.nx;
 nt = params.nt;
@@ -26,11 +24,16 @@ t_interior = t(2:end);   % nt time points for F, p, etc.
 [X_full, T_full] = meshgrid(x, t);         % (nt+1) x (nx+1)
 [X, T]           = meshgrid(x, t_interior);% nt x (nx+1)
 
-% building u_desired and p_desired. The goal is to recover q_actual.
-[F_fun, S_fun, g_fun, psi_fun, exactu, exactp, exactut] = ARMA461(params, endpoints.xend);
+% -------------------------------------------------------------------------
+% Use ARMA461 in the SAME WAY as run_opt_new
+% -------------------------------------------------------------------------
+% NOTE: run_opt_new uses:
+% [F, source.S, source.g, source.psi, ud_fun, pd_fun] = ARMA461(...)
+% so ARMA461 has 6 outputs (not 7).
+[F_fun, S_fun, g_fun, psi_fun, ud_fun, pd_fun] = ARMA461(params, endpoints.xend);
 
 % Build q_actual as a grid (nx+1) x nt
-% F_fun expects y,t; we evaluate at our space-time grid for t(2:end)
+% F_fun expects (y,t); we evaluate at our space-time grid for t(2:end)
 q_actual = F_fun(X, T)';  % (nx+1) x nt
 
 % Define source dictionary
@@ -45,24 +48,39 @@ source.IC  = @(y) zeros(size(y));  % initial condition (matches exactu at t=0)
 % Set the control to q_actual for the "truth" run
 source.F = q_actual;
 
-% -------------------------------------------------------------------------
-% Build u_desired and p_desired from exactu, exactp
-% -------------------------------------------------------------------------
-%%% CHANGED: evaluate function handles on the grids
-u_desired = exactu(X_full, T_full)';   % (nx+1) x (nt+1)
-p_desired = exactp(X, T)';             % (nx+1) x nt
+setup = 2;  % linear PVE
 
-% If you ever want the "truth" forward solve instead:
-% [u_desired, p_desired] = approxPVEsol(params, source, endpoints, setup);
+% -------------------------------------------------------------------------
+% Compute u_tilde, p_tilde as in run_opt_new
+% -------------------------------------------------------------------------
+[u_tilde, p_tilde] = approxPVEsol(params, source, endpoints, setup);
+% u_tilde: (nx+1) x (nt+1)
+% p_tilde: (nx+1) x nt
 
+% -------------------------------------------------------------------------
+% Build desired states u_desired, p_desired the SAME WAY as run_opt_new
+% -------------------------------------------------------------------------
+% In run_opt_new:
+%   ud = min(u_tilde, 0.0046);
+%   pd = max(p_tilde, -0.0016);
+u_desired = min(u_tilde, 0.0046);
+p_desired = max(p_tilde, -0.0016);
+
+% If you want to also have the analytic ud_fun/pd_fun (like run_opt_new's ud_actual, pd_actual),
+% you could do:
+% ud_actual = ud_fun(X_full, T_full)';   % (nx+1) x (nt+1)
+% pd_actual = pd_fun(X, T)';             % (nx+1) x nt
+% but for the AL cost, we use u_desired, p_desired above.
+
+% -------------------------------------------------------------------------
 % Now we initialize our OuterLoop call
+% -------------------------------------------------------------------------
 params.u_d = u_desired(:);  % vector length (nx+1)*(nt+1)
 params.p_d = p_desired(:);  % vector length (nx+1)*nt
 
 Uscale = max(1, max(abs(u_desired(:))));
 Pscale = max(1, max(abs(p_desired(:))));
 
-% CHANGE THIS LATER
 % state constraints big enough to be irrelevant for now
 u_max_grid =  7 * ones(size(u_desired));
 u_min_grid = -7 * ones(size(u_desired));
@@ -92,14 +110,12 @@ params.gamma   = 2;
 params.tau     = 0.9;
 params.epsilon = 1e-3;
 
-% Initial residual scale. same as the one used in 24 paper
+% Initial residual scale. same as the one used in 2024 paper
 params.R = 1e3; 
 
 % Run OuterLoop ===========================================================
 % Initial guess for q
 q_initial = zeros(nx+1, nt);
-
-setup = 2;  % linear PVE
 
 q_optimal = OuterLoop(q_initial, params, source, endpoints);
 
