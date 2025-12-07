@@ -1,7 +1,7 @@
 % Create Params
 
 % Important notes:
-% 1. mu{1}, ..., mu{4} must be column vectors.
+% 1. mu{1}, ..., mu{4} must be column vectors.clear
 
 % initialization
 
@@ -45,18 +45,19 @@ source.IC  = @(y) zeros(size(y));  % initial condition (matches exactu at t=0)
 % Set the control to q_actual for the "truth" run
 source.F = q_actual;
 
-% -------------------------------------------------------------------------
-% Build u_desired and p_desired from exactu, exactp
-% -------------------------------------------------------------------------
-%%% CHANGED: evaluate function handles on the grids
-u_desired = exactu(X_full, T_full)';   % (nx+1) x (nt+1)
-p_desired = exactp(X, T)';             % (nx+1) x nt
+% generate u_desired and p_desired with forward solve.
+setup = 2;  % linear PVE
 
-% If you ever want the "truth" forward solve instead:
+u_desired = exactu;
+p_desired = exactp;
+
 % [u_desired, p_desired] = approxPVEsol(params, source, endpoints, setup);
+% u_desired: (nx+1) x (nt+1)
+% p_desired: (nx+1) x nt
 
 % Now we initialize our OuterLoop call
-params.u_d = u_desired(:);  % vector length (nx+1)*(nt+1)
+
+params.u_d = u_des  ired(:);  % vector length (nx+1)*(nt+1)
 params.p_d = p_desired(:);  % vector length (nx+1)*nt
 
 Uscale = max(1, max(abs(u_desired(:))));
@@ -95,11 +96,10 @@ params.epsilon = 1e-3;
 % Initial residual scale. same as the one used in 24 paper
 params.R = 1e3; 
 
+
 % Run OuterLoop ===========================================================
 % Initial guess for q
 q_initial = zeros(nx+1, nt);
-
-setup = 2;  % linear PVE
 
 q_optimal = OuterLoop(q_initial, params, source, endpoints);
 
@@ -162,6 +162,7 @@ pbaspect([1 1 1])
 view(135, 30);
 colorbar;
 rotate3d on;
+
 
 % -------------------------------------------------------------------------
 % 3. Plot q_optimal
