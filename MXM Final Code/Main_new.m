@@ -82,10 +82,10 @@ Uscale = max(1, max(abs(u_desired(:))));
 Pscale = max(1, max(abs(p_desired(:))));
 
 % state constraints big enough to be irrelevant for now
-u_max_grid =  7 * ones(size(u_desired));
-u_min_grid = -7 * ones(size(u_desired));
-p_max_grid =  7 * ones(size(p_desired));
-p_min_grid = -7 * ones(size(p_desired));
+u_max_grid =  0.01 * ones(size(u_desired));
+u_min_grid = -0.001 * ones(size(u_desired));
+p_max_grid =  0.003 * ones(size(p_desired));
+p_min_grid = -0.0016 * ones(size(p_desired));
 
 params.u_max = u_max_grid(:);
 params.u_min = u_min_grid(:);
@@ -108,7 +108,7 @@ params.mu_initial = {mu1, mu2, mu3, mu4};
 
 params.gamma   = 2;
 params.tau     = 0.9;
-params.epsilon = 1e-3;
+params.epsilon = 1e-6;
 
 % Initial residual scale. same as the one used in 2024 paper
 params.R = 1e3; 

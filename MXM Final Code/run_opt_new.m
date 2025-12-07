@@ -1,6 +1,6 @@
 clear variables
 close all
-[params, endpoints] = create_params_optimize();
+[params, endpoints] = create_params_optimize_new();
 
 %If you want k to be a function of time define params.k. If not, then
 %simply defining params.kref is enough.
@@ -9,8 +9,8 @@ close all
 %params.k = @(t)t;
 
 
-params.nx = 96;
-params.nt = 96;
+params.nx = 24;
+params.nt = 24;
 
 %if you want k as a function of x and t you have to put in a matrix
 %params.k=5*rand(params.nx, params.nt);
