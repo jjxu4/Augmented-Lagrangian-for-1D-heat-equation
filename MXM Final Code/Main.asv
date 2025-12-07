@@ -9,8 +9,8 @@ close all
 [params, endpoints] = create_params_optimize();
 
 % gridding parameters
-params.nx = 24;
-params.nt = 24;
+params.nx = 96;
+params.nt = 96;
 nx = params.nx;
 nt = params.nt;
 

@@ -18,8 +18,8 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
     W = params.W;
 
     % history of residuals and penalty parameters (indexed by successful steps)
-    R_hist  = [];               % will store R_k for successful steps
-    rho_hist = [];              % each row: [rho1, rho2, rho3, rho4]
+    R_hist  = [];           
+    rho_hist = [];              
 
     % state constraints. These are expected to be vectors
     u_max = params.u_max;
@@ -65,7 +65,6 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
         mu_4_bar = max(rho{4} * (p_min - p_k_bar) + mu{4}, 0);
     
         % Step 3 
-        % TODO: INCOMPLETE, need to add second part with the |int( ???)|
         error_1 = max( max((u_k_bar - u_max), 0) ) + abs( W * sum( mu_1_bar .* (u_max - u_k_bar) ) );
         error_2 = max( max((u_min - u_k_bar), 0) ) + abs( W * sum( mu_2_bar .* (u_k_bar - u_min) ) );
         error_3 = max( max((p_k_bar - p_max), 0) ) + abs( W * sum( mu_3_bar .* (p_max - p_k_bar) ) );
@@ -120,12 +119,11 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
         % update counter
         k = k + 1;
     end
-    fprintf('\n--------- Outer Loop Finished %d ---------\n', k);
+    disp('--------- Outer Loop Finished ---------');
     fprintf('Final residual R_{k-1} = %.6e\n', R_n_minus_1);
     q_optimal = q_n;
 
     % ===================== Plot histories ==========================
-    disp(size(R_hist));
     if ~isempty(R_hist)
         succ_iter = 1:numel(R_hist);
 

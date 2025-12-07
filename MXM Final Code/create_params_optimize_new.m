@@ -1,4 +1,4 @@
-function [params,endpoints] = create_params_optimize()
+function [params,endpoints] = create_params_optimize_new()
     %Define parameters for PDE system (Used in test cases)
     %params.kref=1;
     %params.phi0=0.5;

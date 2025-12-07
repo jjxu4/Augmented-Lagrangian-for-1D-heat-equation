@@ -26,8 +26,8 @@ function L = AugLagrange(q, params, source, endpoints)
     
     % Convert everything into column vectors for safety
     % Desired solution. 
-    u_d   = params.u_d; u_d = u_d(:);
-    p_d   = params.p_d; p_d = p_d(:);
+    u_d = params.u_d; u_d = u_d(:);
+    p_d = params.p_d; p_d = p_d(:);
 
     % State constraints
     u_max = params.u_max; u_max = u_max(:);

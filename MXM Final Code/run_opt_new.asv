@@ -116,11 +116,9 @@ spacing = floor(nx / 12);
 
 % State constraints (that will be used for the constrained run, used for
 % plotting only)
-% Changing the constraints that I plot by a little just for prettier
-% plots. (overlapping issues).
 
 % p_min: -0.0016, p_max: 0.0019
-p_min_grid = -0.001625 * ones(size(pd));   % (nx+1) x nt
+p_min_grid = -0.001621 * ones(size(pd));   % (nx+1) x nt
 p_max_grid = 0.0019 * ones(size(pd));
 
 % u_min: 0, u_max: 0.0046
@@ -128,7 +126,8 @@ u_min_grid = -0.00003     * ones(size(ud));   % (nx+1) x (nt+1)
 u_max_grid = 0.0046  * ones(size(ud));
 
 % Plot ud overlaid with constraints
-figure(401)
+
+figure(1)
 surf(X_full_plot, T_full_plot, u_max_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 hold on
@@ -136,12 +135,13 @@ surf(X_full_plot, T_full_plot, u_min_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_full_plot, T_full_plot, ud, 'EdgeColor', 'none');
 hold off
-title('u_{des}');
+title('ud');
 xlabel('x'); ylabel('t'); zlabel('ud');
 colorbar; rotate3d on; view(135,30);
 
-% Plot pd overlaid with constraints
-figure(402)
+% 10. Plot pd with p-bounds (wireframe underneath)
+
+figure(2)
 surf(X_plot, T_plot, p_max_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 hold on
@@ -149,29 +149,21 @@ surf(X_plot, T_plot, p_min_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_plot, T_plot, pd, 'EdgeColor', 'none');
 hold off
-title('p_{des}');
+title('pd');
 xlabel('x'); ylabel('t'); zlabel('pd');
 colorbar; rotate3d on; view(135,30);
 
-% Plot q_opt (Unconstrained) with black traces (same style as constrained)
+% 11. Plot q_opt
 
-figure(403)
+figure(3)
 surf(X_plot, T_plot, q_opt, 'EdgeColor', 'none');
-hold on
-[~, nCols] = size(X_plot);
-for i = 1:spacing:nCols
-    plot3(X_plot(:,i), T_plot(:,i), q_opt(:,i), '-k');
-    plot3(X_plot(i,:), T_plot(i,:), q_opt(i,:), '-k');
-end
-hold off
-title('q_{opt} (Unconstrained)');
+title('q\_opt');
 xlabel('x'); ylabel('t'); zlabel('q\_opt');
 colorbar; rotate3d on; view(135,30);
 
+% 12. Plot u_opt with u-bounds (wireframe underneath)
 
-% Plot u_opt overlaid with constraints
-
-figure(404)
+figure(4)
 surf(X_full_plot, T_full_plot, u_max_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 hold on
@@ -179,13 +171,13 @@ surf(X_full_plot, T_full_plot, u_min_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_full_plot, T_full_plot, u_opt, 'EdgeColor', 'none');
 hold off
-title('u_{opt} (Unconstrained)');
+title('u\_opt');
 xlabel('x'); ylabel('t'); zlabel('u\_opt');
 colorbar; rotate3d on; view(135,30);
 
-% Plot p_opt overlaid with constraints
+% 13. Plot p_opt with p-bounds (wireframe underneath)
 
-figure(405)
+figure(5)
 surf(X_plot, T_plot, p_max_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 hold on
@@ -193,6 +185,6 @@ surf(X_plot, T_plot, p_min_grid, ...
     'FaceColor', 'none', 'EdgeColor', 'k');
 surf(X_plot, T_plot, p_opt, 'EdgeColor', 'none');
 hold off
-title('p_{opt} (Unconstrained)');
+title('p\_opt');
 xlabel('x'); ylabel('t'); zlabel('p\_opt');
 colorbar; rotate3d on; view(135,30);

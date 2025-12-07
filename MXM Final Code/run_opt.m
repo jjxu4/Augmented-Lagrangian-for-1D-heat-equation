@@ -193,4 +193,3 @@ title('Actual F')
 xlabel('x')
 ylabel('t')
 zlabel('F')
-

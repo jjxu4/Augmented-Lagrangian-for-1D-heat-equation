@@ -1,224 +1,178 @@
-% main_new.m – AL version using ARMA461 source like run_opt_new
-
-% Important notes:
-% 1. mu{1}, ..., mu{4} must be column vectors.
-
 clear variables
 close all
 
+% PDE parameters and grid
 [params, endpoints] = create_params_optimize_new();
 
-% gridding parameters
-params.nx = 24;   % you can change to 96 like run_opt_new if desired
+params.nx = 24;
 params.nt = 24;
 nx = params.nx;
 nt = params.nt;
 
-params.deltat = (endpoints.tend - endpoints.tstart)/params.nt;
-params.deltax = (endpoints.xend - endpoints.xstart)/params.nx;
+params.deltat = (endpoints.tend - endpoints.tstart) / params.nt;
+params.deltax = (endpoints.xend  - endpoints.xstart) / params.nx;
 
-t = linspace(endpoints.tstart, endpoints.tend, params.nt+1);   % 1 x (nt+1)
-x = linspace(endpoints.xstart, endpoints.xend, params.nx+1);  % 1 x (nx+1)
+t = linspace(endpoints.tstart, endpoints.tend, nt+1);   
+x = linspace(endpoints.xstart,  endpoints.xend,  nx+1); 
 
-t_interior = t(2:end);   % nt time points for F, p, etc.
-[X_full, T_full] = meshgrid(x, t);         % (nt+1) x (nx+1)
-[X, T]           = meshgrid(x, t_interior);% nt x (nx+1)
+t_interior = t(2:end);  
 
-% -------------------------------------------------------------------------
-% Use ARMA461 in the SAME WAY as run_opt_new
-% -------------------------------------------------------------------------
-% NOTE: run_opt_new uses:
-% [F, source.S, source.g, source.psi, ud_fun, pd_fun] = ARMA461(...)
-% so ARMA461 has 6 outputs (not 7).
-[F_fun, S_fun, g_fun, psi_fun, ud_fun, pd_fun] = ARMA461(params, endpoints.xend);
+[X_full, T_full] = meshgrid(x, t);        
+[X, T] = meshgrid(x, t_interior);
 
-% Build q_actual as a grid (nx+1) x nt
-% F_fun expects (y,t); we evaluate at our space-time grid for t(2:end)
-q_actual = F_fun(X, T)';  % (nx+1) x nt
+X_full_plot = X_full';  
+T_full_plot = T_full';
+X_plot = X';       
+T_plot = T';
 
-% Define source dictionary
-source.S   = S_fun;          % function handle S(y,t)
-source.g   = g_fun;          % boundary flux/traction on u
-source.psi = psi_fun;        % boundary data for p
+setup = 2; 
 
-source.bcu = @(y) zeros(size(y));  % u boundary condition (can refine if needed)
-source.bcp = @(y) zeros(size(y));  % p boundary condition
-source.IC  = @(y) zeros(size(y));  % initial condition (matches exactu at t=0)
+% Build desired states u_d, p_d from ARMA461
 
-% Set the control to q_actual for the "truth" run
-source.F = q_actual;
+[F_fun, S_fun, g_fun, psi_fun, ~, ~, ~] = ARMA461(params, endpoints.xend);
 
-setup = 2;  % linear PVE
+source.F = F_fun(X, T)';  
+source.S = S_fun;         
+source.g = g_fun;         
+source.psi = psi_fun;        
+source.bcu = @(y) zeros(size(y));
+source.bcp = @(y) zeros(size(y));
+source.IC = @(y) zeros(size(y));
 
-% -------------------------------------------------------------------------
-% Compute u_tilde, p_tilde as in run_opt_new
-% -------------------------------------------------------------------------
 [u_tilde, p_tilde] = approxPVEsol(params, source, endpoints, setup);
 % u_tilde: (nx+1) x (nt+1)
-% p_tilde: (nx+1) x nt
+% p_tilde: (nx+1) x  nt
 
-% -------------------------------------------------------------------------
-% Build desired states u_desired, p_desired the SAME WAY as run_opt_new
-% -------------------------------------------------------------------------
-% In run_opt_new:
-%   ud = min(u_tilde, 0.0046);
-%   pd = max(p_tilde, -0.0016);
-u_desired = min(u_tilde, 0.0046);
-p_desired = max(p_tilde, -0.0016);
+% Desired states
+u_desired = min(u_tilde, 0.0046);  
+p_desired = max(p_tilde, -0.0016);  
 
-% If you want to also have the analytic ud_fun/pd_fun (like run_opt_new's ud_actual, pd_actual),
-% you could do:
-% ud_actual = ud_fun(X_full, T_full)';   % (nx+1) x (nt+1)
-% pd_actual = pd_fun(X, T)';             % (nx+1) x nt
-% but for the AL cost, we use u_desired, p_desired above.
+params.u_d = u_desired(:);
+params.p_d = p_desired(:);
 
-% -------------------------------------------------------------------------
-% Now we initialize our OuterLoop call
-% -------------------------------------------------------------------------
-params.u_d = u_desired(:);  % vector length (nx+1)*(nt+1)
-params.p_d = p_desired(:);  % vector length (nx+1)*nt
+% State constraints
 
-Uscale = max(1, max(abs(u_desired(:))));
-Pscale = max(1, max(abs(p_desired(:))));
+% p_min: -0.0016, p_max: 0.0019
+p_min_grid = -0.0016 * ones(size(p_desired));  % (nx+1) x nt
+p_max_grid = 0.0019 * ones(size(p_desired));
 
-% state constraints big enough to be irrelevant for now
-u_max_grid =  0.01 * ones(size(u_desired));
-u_min_grid = -0.001 * ones(size(u_desired));
-p_max_grid =  0.003 * ones(size(p_desired));
-p_min_grid = -0.0016 * ones(size(p_desired));
+% u_min: 0, u_max: 0.0046
+u_min_grid = 0.0 * ones(size(u_desired));  % (nx+1) x (nt+1)
+u_max_grid = 0.0046 * ones(size(u_desired));
 
+% Store as vectors for the AL code
 params.u_max = u_max_grid(:);
 params.u_min = u_min_grid(:);
 params.p_max = p_max_grid(:);
 params.p_min = p_min_grid(:);
 
-params.lambda = 1e-5;    % regularization
-params.beta   = params.lambda;
-params.W      = params.deltax * params.deltat;   % simple scalar weight
+% AL and cost parameters
 
-% AL multipliers and penalties
+params.lambda = 1e-5;          % control regularization
+params.beta = params.lambda;   % used in AugLagrange
+params.W = params.deltax * params.deltat;
+
+% Initial multipliers
+mu1 = zeros((nx+1)*(nt+1), 1); % for u <= u_max
+mu2 = zeros((nx+1)*(nt+1), 1); % for u_min <= u
+mu3 = zeros((nx+1)*nt,     1); % for p <= p_max
+mu4 = zeros((nx+1)*nt,     1); % for p_min <= p
+
+params.mu_initial = {mu1, mu2, mu3, mu4};
+
+% Initial penalty parameters
 rho1 = 1.0; rho2 = 1.0; rho3 = 1.0; rho4 = 1.0;
 params.rho_initial = {rho1, rho2, rho3, rho4};
 
-mu1 = zeros((nx+1)*(nt+1), 1);
-mu2 = zeros((nx+1)*(nt+1), 1);
-mu3 = zeros((nx+1)*nt, 1);
-mu4 = zeros((nx+1)*nt, 1);
-params.mu_initial = {mu1, mu2, mu3, mu4};
+% Algorithm 2 parameters
+params.gamma = 2;      % penalty increase factor
+params.tau = 0.9;    
+params.epsilon = 1e-9;   % stopping tolerance on R_n
+params.R = 1e3;   
 
-params.gamma   = 2;
-params.tau     = 0.9;
-params.epsilon = 1e-6;
+% Define sources
+source.S = @(y,t) zeros(size(y));
+source.psi = @(t) zeros(size(t));
+source.g = @(t) zeros(size(t));
+source.bcu = @(y) zeros(size(y));
+source.bcp = @(y) zeros(size(y));
+source.IC = @(y) zeros(size(y));
+source.z3 = @(t) zeros(size(t));
+source.z4 = @(t) zeros(size(t));
 
-% Initial residual scale. same as the one used in 2024 paper
-params.R = 1e3; 
-
-% Run OuterLoop ===========================================================
-% Initial guess for q
-q_initial = zeros(nx+1, nt);
-
+% 6. Run OuterLoop 
+q_initial = zeros(nx+1, nt);  % initial guess for control F
 q_optimal = OuterLoop(q_initial, params, source, endpoints);
 
-% Compare q_optimal vs q_actual
-diff_q = q_optimal - q_actual;
-rel_err_q = norm(diff_q(:)) / norm(q_actual(:));
-fprintf('Relative error in q: %e\n', rel_err_q);
-
-%% Everything after this is for plotting. TODO: make good looking plots
-% Recover optimal states with q_optimal
+% Recover optimal states
 source.F = q_optimal;
-[u_optimal, p_optimal] = approxPVEsol(params, source, endpoints, setup);
+[u_opt, p_opt] = approxPVEsol(params, source, endpoints, setup);
 
-% Prepare plotting grids ==================================================
-X_full_plot = X_full';   
-T_full_plot = T_full';   
-X_plot = X';             
-T_plot = T';             
+%% EVERYTHING AFTER THIS IS FOR PLOTTING
+% Changing the constraints that I plot by a little just for prettier
+% plots. (overlapping issues).
 
-% -------------------------------------------------------------------------
-% 1. Plot q_actual
-% -------------------------------------------------------------------------
-figure(1);
-surf(X_plot, T_plot, q_actual, 'EdgeColor', 'none');
-title('q\_actual');
-xlabel('x'); ylabel('t'); zlabel('q');
-pbaspect([1 1 1])
-view(135, 30);
-colorbar;
-rotate3d on;
+% p_min: -0.0016, p_max: 0.0019
+p_min_grid = -0.001621 * ones(size(p_desired));  % (nx+1) x nt
+p_max_grid =  0.0019 * ones(size(p_desired));
 
-% -------------------------------------------------------------------------
-% 2A. Plot u_desired with bounds (SEPARATE FIGURE)
-% -------------------------------------------------------------------------
-figure(2);
-surf(X_full_plot, T_full_plot, u_desired, 'EdgeColor', 'none');  
-hold on;
-surf(X_full_plot, T_full_plot, u_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-surf(X_full_plot, T_full_plot, u_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('u\_desired with bounds');
-xlabel('x'); ylabel('t'); zlabel('u');
-legend({'u\_desired','u\_max','u\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
-view(135, 30);
-colorbar;
-rotate3d on;
+% u_min: 0, u_max: 0.0046
+u_min_grid = -0.00003     * ones(size(u_desired));  % (nx+1) x (nt+1)
+u_max_grid = 0.0046  * ones(size(u_desired));
 
-% -------------------------------------------------------------------------
-% 2B. Plot p_desired with bounds (SEPARATE FIGURE)
-% -------------------------------------------------------------------------
-figure(3);
-surf(X_plot, T_plot, p_desired, 'EdgeColor', 'none');  
-hold on;
-surf(X_plot, T_plot, p_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-surf(X_plot, T_plot, p_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('p\_desired with bounds');
-xlabel('x'); ylabel('t'); zlabel('p');
-legend({'p\_desired','p\_max','p\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
-view(135, 30);
-colorbar;
-rotate3d on;
+figure(501)
+surf(X_full_plot, T_full_plot, u_desired, 'EdgeColor', 'none');
+title('u_d');
+xlabel('x'); ylabel('t'); zlabel('u_d');
+colorbar; rotate3d on; view(135,30);
 
-% -------------------------------------------------------------------------
-% 3. Plot q_optimal
-% -------------------------------------------------------------------------
-figure(4);
+% Plot p_des
+
+figure(502)
+surf(X_plot, T_plot, p_desired, 'EdgeColor', 'none');
+title('p_{des}');
+xlabel('x'); ylabel('t'); zlabel('p_d');
+colorbar; rotate3d on; view(135,30);
+
+% Plot q_opt
+
+spacing = floor(nx / 12);
+figure(503)
 surf(X_plot, T_plot, q_optimal, 'EdgeColor', 'none');
-title('q\_optimal');
-xlabel('x'); ylabel('t'); zlabel('q');
-pbaspect([1 1 1])
-view(135, 30);
-colorbar;
-rotate3d on;
+hold on
+[~, nCols] = size(X_plot);
+for i = 1:spacing:nCols
+    plot3(X_plot(:,i), T_plot(:,i), q_optimal(:,i), '-k');
+    plot3(X_plot(i,:), T_plot(i,:), q_optimal(i,:), '-k');
+end
+hold off
+title('q_{opt} (Constrained)');
+xlabel('x'); ylabel('t'); zlabel('q\_opt');
+colorbar; rotate3d on; view(135,30);
 
-% -------------------------------------------------------------------------
-% 4A. Plot u_optimal with bounds (SEPARATE FIGURE)
-% -------------------------------------------------------------------------
-figure(5);
-surf(X_full_plot, T_full_plot, u_optimal, 'EdgeColor', 'none');  
-hold on;
-surf(X_full_plot, T_full_plot, u_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-surf(X_full_plot, T_full_plot, u_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('u\_optimal with bounds');
-xlabel('x'); ylabel('t'); zlabel('u');
-legend({'u\_optimal','u\_max','u\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
-view(135, 30);
-colorbar;
-rotate3d on;
+% Plot u_opt overlaid with constraints
+figure(504)
+surf(X_full_plot, T_full_plot, u_opt, 'EdgeColor', 'none');
+hold on
+surf(X_full_plot, T_full_plot, u_max_grid, ...
+    'FaceColor', 'none', 'EdgeColor', 'k');
+surf(X_full_plot, T_full_plot, u_min_grid, ...
+    'FaceColor', 'none', 'EdgeColor', 'k');
+hold off
+title('u_{opt} (Constrained)');
+xlabel('x'); ylabel('t'); zlabel('u\_opt');
+colorbar; rotate3d on; view(135,30);
 
-% -------------------------------------------------------------------------
-% 4B. Plot p_optimal with bounds (SEPARATE FIGURE)
-% -------------------------------------------------------------------------
-figure(6);
-surf(X_plot, T_plot, p_optimal, 'EdgeColor', 'none');  
-hold on;
-surf(X_plot, T_plot, p_max_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-surf(X_plot, T_plot, p_min_grid, 'FaceColor', 'none', 'EdgeColor', 'k');
-title('p\_optimal with bounds');
-xlabel('x'); ylabel('t'); zlabel('p');
-legend({'p\_optimal','p\_max','p\_min'}, 'Location', 'best');
-pbaspect([1 1 1])
-view(135, 30);
-colorbar;
-rotate3d on;
+% Plot p_opt overlaid with constraints
+
+figure(505)
+surf(X_plot, T_plot, p_opt, 'EdgeColor', 'none');
+hold on
+surf(X_plot, T_plot, p_max_grid, ...
+    'FaceColor', 'none', 'EdgeColor', 'k');
+surf(X_plot, T_plot, p_min_grid, ...
+    'FaceColor', 'none', 'EdgeColor', 'k');
+hold off
+title('p_{opt} (Constrained)');
+xlabel('x'); ylabel('t'); zlabel('p\_opt');
+colorbar; rotate3d on; view(135,30);
