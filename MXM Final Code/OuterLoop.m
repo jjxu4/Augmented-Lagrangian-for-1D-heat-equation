@@ -125,11 +125,12 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
     q_optimal = q_n;
 
     % ===================== Plot histories ==========================
+    disp(size(R_hist));
     if ~isempty(R_hist)
         succ_iter = 1:numel(R_hist);
 
         % Plot residual history (log scale is usually informative)
-        figure;
+        figure(100);
         semilogy(succ_iter, R_hist, '-o', 'LineWidth', 1.5);
         grid on;
         xlabel('Successful outer iteration');
@@ -137,7 +138,7 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
         title('Residual history (successful iterations)');
 
         % Plot penalty parameter history
-        figure;
+        figure(101);
         plot(succ_iter, rho_hist(:,1), '-o', ...
              succ_iter, rho_hist(:,2), '-s', ...
              succ_iter, rho_hist(:,3), '-^', ...
@@ -150,3 +151,4 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
     end
     % ===============================================================
 end
+
