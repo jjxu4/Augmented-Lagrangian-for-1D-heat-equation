@@ -135,17 +135,18 @@ function q_optimal = OuterLoop(q_initial, params, source, endpoints)
         ylabel('Residual R_k');
         title('Residual history (successful iterations)');
 
-        % Plot penalty parameter history
+        % Plot penalty parameter history (log scale)
         figure(101);
-        plot(succ_iter, rho_hist(:,1), '-o', ...
-             succ_iter, rho_hist(:,2), '-s', ...
-             succ_iter, rho_hist(:,3), '-^', ...
-             succ_iter, rho_hist(:,4), '-d', 'LineWidth', 1.5);
+        semilogy(succ_iter, rho_hist(:,1), '-o', ...
+                 succ_iter, rho_hist(:,2), '-s', ...
+                 succ_iter, rho_hist(:,3), '-^', ...
+                 succ_iter, rho_hist(:,4), '-d', 'LineWidth', 1.5);
         grid on;
         xlabel('Successful outer iteration');
         ylabel('\rho');
         title('Penalty parameters history (successful iterations)');
         legend({'\rho_1','\rho_2','\rho_3','\rho_4'}, 'Location', 'best');
+
     end
     % ===============================================================
 end
